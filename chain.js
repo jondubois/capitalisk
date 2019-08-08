@@ -121,13 +121,10 @@ module.exports = class Chain {
 			this.storage = createStorageComponent(storageConfig, dbLogger);
 			this.storage.registerEntity('Migration', MigrationEntity);
 
-			// TODO 2 CHECK IF THIS IS GOOD
 			await this.storage.bootstrap();
-			console.log('------------------------55-----', Object.keys(this.storage.entities)); // TODO 2
 			await this.storage.entities.Migration.defineSchema();
 			await this.storage.entities.Migration.applyAll(this.migrations);
 
-			// TODO: For socket cluster child process, should be removed with refactoring of network module
 			this.options.loggerConfig = loggerConfig;
 
 			const self = this;
