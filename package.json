@@ -1,0 +1,19 @@
+{
+  "name": "capitalisk",
+  "version": "1.0.0",
+  "description": "Capitalisk sidechain",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "capitalisk",
+    "lisk",
+    "sidechain"
+  ],
+  "author": "Jonathan Gros-Dubois",
+  "license": "AGPL-3.0",
+  "dependencies": {
+    "lisk-framework": "^0.3.0"
+  }
+}
