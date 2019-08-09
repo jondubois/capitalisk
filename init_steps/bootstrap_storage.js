@@ -21,6 +21,8 @@ const {
 	Transaction,
 } = require('../components/storage/entities');
 
+const { MigrationEntity } = require('lisk-framework/src/controller/migrations');
+
 module.exports = async ({ components: { storage, logger } }, accountLimit) => {
 	try {
 		storage.registerEntity('Account', Account, {
@@ -33,6 +35,7 @@ module.exports = async ({ components: { storage, logger } }, accountLimit) => {
 		storage.registerEntity('Transaction', Transaction, {
 			replaceExisting: true,
 		});
+		storage.registerEntity('Migration', MigrationEntity);
 		const status = await storage.bootstrap();
 		if (!status) {
 			throw new Error('Can not bootstrap the storage component');

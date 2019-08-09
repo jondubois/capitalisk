@@ -45,7 +45,6 @@ const {
 const { Loader } = require('./loader');
 const { Forger } = require('./forger');
 const { Transport } = require('./transport');
-const { MigrationEntity } = require('lisk-framework/src/controller/migrations');
 
 const syncInterval = 10000;
 const forgeInterval = 1000;
@@ -119,11 +118,6 @@ module.exports = class Chain {
 			// Storage
 			this.logger.debug('Initiating storage...');
 			this.storage = createStorageComponent(storageConfig, dbLogger);
-			this.storage.registerEntity('Migration', MigrationEntity);
-
-			await this.storage.bootstrap();
-			await this.storage.entities.Migration.defineSchema();
-			await this.storage.entities.Migration.applyAll(this.migrations);
 
 			this.options.loggerConfig = loggerConfig;
 
@@ -150,6 +144,9 @@ module.exports = class Chain {
 			await bootstrapStorage(this.scope, global.constants.ACTIVE_DELEGATES);
 			await bootstrapCache(this.scope);
 
+			await this.storage.entities.Migration.defineSchema();
+			await this.storage.entities.Migration.applyAll(this.migrations);
+
 			await this._initModules();
 
 			this.channel.subscribe('app:state:updated', event => {
@@ -165,11 +162,9 @@ module.exports = class Chain {
 			}
 			this._subscribeToEvents();
 
-			this.channel.subscribe('network:bootstrap', async () => {
-				this._startLoader();
-				this._calculateConsensus();
-				await this._startForging();
-			});
+			this._startLoader();
+			this._calculateConsensus();
+			await this._startForging();
 
 			// Avoid receiving blocks/transactions from the network during snapshotting process
 			if (!this.options.loading.rebuildUpToRound) {
