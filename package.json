@@ -15,5 +15,14 @@
   "license": "AGPL-3.0",
   "dependencies": {
     "lisk-framework": "^0.3.0"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jondubois/capitalisk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jondubois/capitalisk/issues"
+  },
+  "homepage": "https://github.com/jondubois/capitalisk#readme"
 }
