@@ -99,7 +99,7 @@ class Transport {
 			this.broadcaster.enqueue(
 				{},
 				{
-					api: 'postSignatures',
+					api: 'capitalisk:postSignatures',
 					data: {
 						signature,
 					},
@@ -124,7 +124,7 @@ class Transport {
 			this.broadcaster.enqueue(
 				{},
 				{
-					api: 'postTransactions',
+					api: 'capitalisk:postTransactions',
 					data: {
 						transaction: transactionJSON,
 					},
@@ -187,7 +187,7 @@ class Transport {
 			{
 				broadhash,
 			},
-			{ api: 'postBlock', data: { block } },
+			{ api: 'capitalisk:postBlock', data: { block } },
 		);
 	}
 

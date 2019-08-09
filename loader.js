@@ -177,9 +177,8 @@ class Loader {
 	async _getSignaturesFromNetwork() {
 		this.logger.info('Loading signatures from the network');
 
-		// TODO: Add target module to procedure name. E.g. chain:getSignatures
 		const { data: result } = await this.channel.invoke('network:request', {
-			procedure: 'getSignatures',
+			procedure: 'capitalisk:getSignatures',
 		});
 
 		const errors = validator.validate(definitions.WSSignaturesResponse, result);
@@ -219,9 +218,8 @@ class Loader {
 	async _getTransactionsFromNetwork() {
 		this.logger.info('Loading transactions from the network');
 
-		// TODO: Add target module to procedure name. E.g. chain:getTransactions
 		const { data: result } = await this.channel.invoke('network:request', {
-			procedure: 'getTransactions',
+			procedure: 'capitalisk:getTransactions',
 		});
 
 		const validatorErrors = validator.validate(
@@ -285,9 +283,8 @@ class Loader {
 	async _getBlocksFromNetwork() {
 		const { lastBlock } = this.blocksModule;
 		// TODO: If there is an error, invoke the applyPenalty action on the Network module once it is implemented.
-		// TODO: Rename procedure to include target module name. E.g. chain:blocks
 		const { data } = await this.channel.invoke('network:request', {
-			procedure: 'blocks',
+			procedure: 'capitalisk:blocks',
 			data: {
 				lastBlockId: lastBlock.id,
 			},
