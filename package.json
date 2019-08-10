@@ -13,8 +13,8 @@
   ],
   "author": "Jonathan Gros-Dubois",
   "license": "AGPL-3.0",
-  "peerDependencies": {
-    "lisk-framework": "*"
+  "dependencies": {
+    "lisk-framework": "^0.3.0"
   },
   "devDependencies": {},
   "repository": {
