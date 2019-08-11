@@ -1,6 +1,6 @@
 {
   "name": "capitalisk",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Capitalisk sidechain",
   "main": "index.js",
   "scripts": {

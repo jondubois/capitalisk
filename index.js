@@ -42,7 +42,7 @@ module.exports = class CapitaliskModule extends BaseModule {
 	static get info() {
 		return {
 			author: 'Jonathan Gros-Dubois',
-			version: '1.0.3',
+			version: '1.0.4',
 			name: 'capitalisk',
 		};
 	}
