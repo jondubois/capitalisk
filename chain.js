@@ -19,6 +19,7 @@ if (process.env.NEW_RELIC_LICENSE_KEY) {
 	require('./utils/newrelic_lisk');
 }
 
+const genesisBlock = require('./genesis_block.json');
 const { convertErrorsToString } = require('./utils/error_handlers');
 const { Sequence } = require('./utils/sequence');
 const { createStorageComponent } = require('lisk-framework/src/components/storage');
@@ -58,7 +59,7 @@ const forgeInterval = 1000;
 module.exports = class Chain {
 	constructor(channel, options, migrations = {}) {
 		this.channel = channel;
-		this.options = options;
+		this.options = {...options};
 		this.migrations = migrations;
 		this.logger = null;
 		this.scope = null;
@@ -66,6 +67,8 @@ module.exports = class Chain {
 	}
 
 	async bootstrap() {
+		this.options.genesisBlock = genesisBlock;
+
 		const loggerConfig = await this.channel.invoke(
 			'app:getComponentConfig',
 			'logger',
@@ -105,7 +108,6 @@ module.exports = class Chain {
 			this.options.broadcasts.active = false;
 			this.options.syncing.active = false;
 		}
-
 		try {
 			if (!this.options.genesisBlock) {
 				throw Error('Failed to assign nethash from genesis block');
