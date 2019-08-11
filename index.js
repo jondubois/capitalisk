@@ -30,7 +30,7 @@ const MODULE_ALIAS = 'capitalisk';
  */
 module.exports = class CapitaliskModule extends BaseModule {
 	constructor(options) {
-		super(options);
+		super({...DefaultConfig.default, ...options});
 
 		this.chain = null;
 	}
