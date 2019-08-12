@@ -73,11 +73,14 @@ module.exports = class Chain {
 			'app:getComponentConfig',
 			'logger',
 		);
-		const storageConfig = await this.channel.invoke(
+		const storageConfigOptions = await this.channel.invoke(
 			'app:getComponentConfig',
 			'storage',
 		);
-		storageConfig.database = this.options.database;
+		const storageConfig = {
+			...storageConfigOptions,
+			database: this.options.database
+		};
 
 		const cacheConfig = await this.channel.invoke(
 			'app:getComponentConfig',
@@ -245,6 +248,8 @@ module.exports = class Chain {
 			blocks: async action => this.transport.blocks(action.params || {}),
 			blocksCommon: async action =>
 				this.transport.blocksCommon(action.params || {}),
+			getModuleOptions: async action =>
+				this.options,
 		};
 	}
 

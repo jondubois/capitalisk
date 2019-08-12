@@ -131,6 +131,9 @@ module.exports = class CapitaliskModule extends BaseModule {
 				handler: async action => this.chain.actions.blocksCommon(action),
 				isPublic: true,
 			},
+			getModuleOptions: {
+				handler: async action => this.chain.actions.getModuleOptions(action)
+			}
 		};
 	}
 
