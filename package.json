@@ -14,6 +14,10 @@
   "author": "Jonathan Gros-Dubois",
   "license": "AGPL-3.0",
   "dependencies": {
+    "@liskhq/lisk-cryptography": "*",
+    "@liskhq/lisk-transactions": "*",
+    "@liskhq/lisk-validator": "*",
+    "@liskhq/bignum": "*",
     "lisk-framework": "^0.3.0"
   },
   "devDependencies": {},
