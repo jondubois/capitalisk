@@ -171,15 +171,15 @@ module.exports = class Chain {
 			// Avoid receiving blocks/transactions from the network during snapshotting process
 			if (!this.options.loading.rebuildUpToRound) {
 				this.channel.subscribe('network:event', ({ data: { event, data } }) => {
-					if (event === 'postTransactions') {
+					if (event === 'capitalisk:postTransactions') {
 						this.transport.postTransactions(data);
 						return;
 					}
-					if (event === 'postSignatures') {
+					if (event === 'capitalisk:postSignatures') {
 						this.transport.postSignatures(data);
 						return;
 					}
-					if (event === 'postBlock') {
+					if (event === 'capitalisk:postBlock') {
 						this.transport.postBlock(data);
 						// eslint-disable-next-line no-useless-return
 						return;
