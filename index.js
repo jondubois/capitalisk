@@ -43,12 +43,12 @@ module.exports = class CapitaliskModule extends BaseModule {
 		return {
 			author: 'Jonathan Gros-Dubois',
 			version: '1.0.4',
-			name: 'capitalisk',
+			name: MODULE_ALIAS,
 		};
 	}
 
 	static get migrations() {
-		return migrations;
+		return [];
 	}
 
 	static get defaults() {

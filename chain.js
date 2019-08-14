@@ -165,6 +165,7 @@ module.exports = class Chain {
 				process.emit('cleanup');
 				return;
 			}
+
 			this._subscribeToEvents();
 
 			this._startLoader();
