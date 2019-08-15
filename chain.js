@@ -519,6 +519,10 @@ module.exports = class Chain {
 			this.transport.onUnconfirmedTransaction(transaction, true);
 		});
 
+		this.channel.invoke('interchain:updateModuleState', {
+			capitalisk: {}
+		});
+
 		this.blocks.on(EVENT_NEW_BROADHASH, ({ broadhash, height }) => {
 			this.channel.invoke('interchain:updateModuleState', {
 				capitalisk: { broadhash, height }
