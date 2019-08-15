@@ -520,7 +520,7 @@ module.exports = class Chain {
 		});
 
 		this.blocks.on(EVENT_NEW_BROADHASH, ({ broadhash, height }) => {
-			this.channel.invoke('app:updateApplicationState', { broadhash, height });
+			this.channel.invoke('interchain:updateModuleState', { broadhash, height });
 		});
 
 		this.transactionPool.on(EVENT_MULTISIGNATURE_SIGNATURE, signature => {
