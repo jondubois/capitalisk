@@ -241,6 +241,7 @@ class Blocks extends EventEmitter {
 			},
 		);
 		if (blocksCount === 1) {
+			this.logger.info('Applying genesis block');
 			this._lastBlock = await this._reload(blocksCount);
 			this._isActive = false;
 			return;
@@ -302,7 +303,12 @@ class Blocks extends EventEmitter {
 	}
 
 	async recoverChain() {
+		const originalLastBlock = cloneDeep(this._lastBlock);
 		this._lastBlock = await this.blocksChain.deleteLastBlock(this._lastBlock);
+		this.emit(EVENT_DELETE_BLOCK, {
+			block: originalLastBlock,
+			newLastBlock: cloneDeep(this._lastBlock),
+		});
 		return this._lastBlock;
 	}
 
@@ -575,7 +581,7 @@ class Blocks extends EventEmitter {
 				this._lastBlock = block;
 				this.logger.info(
 					{ blockId: block.id, height: block.height },
-					'Rebuilding block',
+					'Reloaded block',
 				);
 			},
 		);

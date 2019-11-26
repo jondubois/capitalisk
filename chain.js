@@ -111,6 +111,7 @@ module.exports = class Chain {
 			this.options.broadcasts.active = false;
 			this.options.syncing.active = false;
 		}
+
 		try {
 			if (!this.options.genesisBlock) {
 				throw Error('Failed to assign nethash from genesis block');
@@ -165,30 +166,43 @@ module.exports = class Chain {
 				process.emit('cleanup');
 				return;
 			}
-
 			this._subscribeToEvents();
 
-			this._startLoader();
-			this._calculateConsensus();
-			await this._startForging();
+			this.channel.subscribe('network:bootstrap', async () => {
+				this._calculateConsensus();
+				await this._startForging();
+			});
+
+			this.channel.subscribe('network:ready', async () => {
+				this._startLoader();
+			});
 
 			// Avoid receiving blocks/transactions from the network during snapshotting process
 			if (!this.options.loading.rebuildUpToRound) {
-				this.channel.subscribe('network:event', ({ data: { event, data } }) => {
-					if (event === 'capitalisk:postTransactions') {
-						this.transport.postTransactions(data);
-						return;
-					}
-					if (event === 'capitalisk:postSignatures') {
-						this.transport.postSignatures(data);
-						return;
-					}
-					if (event === 'capitalisk:postBlock') {
-						this.transport.postBlock(data);
-						// eslint-disable-next-line no-useless-return
-						return;
-					}
-				});
+				this.channel.subscribe(
+					'network:event',
+					async ({ data: { event, data } }) => {
+						try {
+							if (event === 'capitalisk:postTransactions') {
+								await this.transport.postTransactions(data);
+								return;
+							}
+							if (event === 'capitalisk:postSignatures') {
+								await this.transport.postSignatures(data);
+								return;
+							}
+							if (event === 'capitalisk:postBlock') {
+								await this.transport.postBlock(data);
+								return;
+							}
+						} catch (error) {
+							this.logger.warn(
+								{ error, event },
+								'Received invalid event message',
+							);
+						}
+					},
+				);
 			}
 		} catch (error) {
 			this.logger.fatal('Chain initialization', {
@@ -251,6 +265,7 @@ module.exports = class Chain {
 				this.transport.blocksCommon(action.params || {}),
 			getModuleOptions: async action =>
 				this.options,
+      getLastBlock: async () => this.blocks.lastBlock,
 		};
 	}
 
@@ -412,7 +427,7 @@ module.exports = class Chain {
 	}
 
 	async _syncTask() {
-		this.logger.info(
+		this.logger.debug(
 			{
 				syncing: this.loader.syncing(),
 				lastReceipt: this.blocks.lastReceipt,
@@ -497,6 +512,10 @@ module.exports = class Chain {
 					block.transactions,
 				);
 			}
+			this.logger.info(
+				{ id: block.id, height: block.height },
+				'Deleted a block from the capitalisk chain',
+			);
 			this.channel.publish('capitalisk:blocks:change', block);
 		});
 
@@ -508,6 +527,14 @@ module.exports = class Chain {
 					block.transactions,
 				);
 			}
+			this.logger.info(
+				{
+					id: block.id,
+					height: block.height,
+					numberOfTransactions: block.transactions.length,
+				},
+				'New block added to the capitalisk chain',
+			);
 			this.channel.publish('capitalisk:blocks:change', block);
 		});
 
@@ -527,6 +554,10 @@ module.exports = class Chain {
 			this.channel.invoke('interchain:updateModuleState', {
 				capitalisk: { broadhash, height }
 			});
+      this.logger.debug(
+				{ broadhash, height },
+				'Updating the capitalisk chain state',
+			);
 		});
 
 		this.transactionPool.on(EVENT_MULTISIGNATURE_SIGNATURE, signature => {

@@ -23,6 +23,13 @@ const definitions = require('../schema/definitions');
 const blocksUtils = require('../blocks');
 const transactionsModule = require('../transactions');
 
+function incrementRelays(packet) {
+	if (!Number.isInteger(packet.relays)) {
+		packet.relays = 0;
+	}
+	packet.relays += 1;
+}
+
 /**
  * Main transport methods. Initializes library with scope content and generates a Broadcaster instance.
  *
@@ -95,7 +102,9 @@ class Transport {
 	 */
 	// eslint-disable-next-line class-methods-use-this
 	onSignature(signature, broadcast) {
-		if (broadcast && !this.broadcaster.maxRelays(signature)) {
+		if (broadcast) {
+			// TODO: Remove the relays property as part of the next hard fork. This needs to be set for backwards compatibility.
+			incrementRelays(signature);
 			this.broadcaster.enqueue(
 				{},
 				{
@@ -119,7 +128,9 @@ class Transport {
 	 */
 	// eslint-disable-next-line class-methods-use-this
 	onUnconfirmedTransaction(transaction, broadcast) {
-		if (broadcast && !this.broadcaster.maxRelays(transaction)) {
+		if (broadcast) {
+			// TODO: Remove the relays property as part of the next hard fork. This needs to be set for backwards compatibility.
+			incrementRelays(transaction);
 			const transactionJSON = transaction.toJSON();
 			this.broadcaster.enqueue(
 				{},
@@ -147,13 +158,9 @@ class Transport {
 		// Exit immediately when 'broadcast' flag is not set
 		if (!broadcast) return null;
 
-		// Check if we are free to broadcast
-		if (this.broadcaster.maxRelays(block)) {
-			this.logger.debug(
-				'Transport->onBroadcastBlock: Aborted - max block relays exhausted',
-			);
-			return null;
-		}
+		// TODO: Remove the relays property as part of the next hard fork. This needs to be set for backwards compatibility.
+		incrementRelays(block);
+
 		if (this.loaderModule.syncing()) {
 			this.logger.debug(
 				'Transport->onBroadcastBlock: Aborted - blockchain synchronization in progress',
@@ -337,13 +344,12 @@ class Transport {
 	 * @todo Add @returns tag
 	 * @todo Add description of the function
 	 */
-	async postBlock(query) {
+	async postBlock(query = {}) {
 		if (!this.constants.broadcasts.active) {
 			return this.logger.debug(
 				'Receiving blocks disabled by user through config.json',
 			);
 		}
-		query = query || {};
 
 		const errors = validator.validate(definitions.WSBlocksBroadcast, query);
 
@@ -356,28 +362,16 @@ class Transport {
 					query,
 				},
 			);
-			throw new Error(errors);
-		}
-
-		let block;
-		let success = true;
-		try {
-			block = blocksUtils.addBlockProperties(query.block);
-
-			// Instantiate transaction classes
-			block.transactions = this.interfaceAdapters.transactions.fromBlock(block);
-
-			block = blocksUtils.objectNormalize(block);
-		} catch (e) {
-			success = false;
-			this.logger.debug('Block normalization failed', {
-				err: e.toString(),
-				module: 'transport',
-				block: query.block,
-			});
-
 			// TODO: If there is an error, invoke the applyPenalty action on the Network module once it is implemented.
+			throw errors;
 		}
+
+		let block = blocksUtils.addBlockProperties(query.block);
+
+		// Instantiate transaction classes
+		block.transactions = this.interfaceAdapters.transactions.fromBlock(block);
+
+		block = blocksUtils.objectNormalize(block);
 		// TODO: endpoint should be protected before
 		if (this.loaderModule.syncing()) {
 			return this.logger.debug(
@@ -385,10 +379,7 @@ class Transport {
 				block.id,
 			);
 		}
-		if (success) {
-			return this.blocksModule.receiveBlockFromNetwork(block);
-		}
-		return null;
+		return this.blocksModule.receiveBlockFromNetwork(block);
 	}
 
 	/**
@@ -442,6 +433,7 @@ class Transport {
 
 		if (errors.length) {
 			this.logger.debug('Invalid signatures body', errors);
+			// TODO: If there is an error, invoke the applyPenalty action on the Network module once it is implemented.
 			throw errors;
 		}
 
@@ -536,6 +528,7 @@ class Transport {
 
 		if (errors.length) {
 			this.logger.debug('Invalid transactions body', errors);
+			// TODO: If there is an error, invoke the applyPenalty action on the Network module once it is implemented.
 			throw errors;
 		}
 

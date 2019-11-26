@@ -123,6 +123,9 @@ module.exports = class CapitaliskModule extends BaseModule {
 			getNodeStatus: {
 				handler: async () => this.chain.actions.getNodeStatus(),
 			},
+			getLastBlock: {
+				handler: async () => this.chain.actions.getLastBlock(),
+			},
 			blocks: {
 				handler: async action => this.chain.actions.blocks(action),
 				isPublic: true,
