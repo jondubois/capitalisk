@@ -50,6 +50,8 @@ const { Transport } = require('./transport');
 const syncInterval = 10000;
 const forgeInterval = 1000;
 
+const ACTIVE_DELEGATES = 101;
+
 /**
  * Chain Module
  *
@@ -147,7 +149,7 @@ module.exports = class Chain {
 				applicationState: this.applicationState,
 			};
 
-			await bootstrapStorage(this.scope, global.constants.ACTIVE_DELEGATES);
+			await bootstrapStorage(this.scope, ACTIVE_DELEGATES);
 			await bootstrapCache(this.scope);
 
 			await this.storage.entities.Migration.defineSchema();
@@ -168,9 +170,9 @@ module.exports = class Chain {
 			}
 			this._subscribeToEvents();
 
-      this._startLoader();
-      this._calculateConsensus();
-      await this._startForging();
+	    this._startLoader();
+	    this._calculateConsensus();
+	    await this._startForging();
 
 			// Avoid receiving blocks/transactions from the network during snapshotting process
 			if (!this.options.loading.rebuildUpToRound) {
@@ -260,7 +262,7 @@ module.exports = class Chain {
 				this.transport.blocksCommon(action.params || {}),
 			getModuleOptions: async action =>
 				this.options,
-      getLastBlock: async () => this.blocks.lastBlock,
+	    getLastBlock: async () => this.blocks.lastBlock,
 		};
 	}
 
@@ -307,7 +309,7 @@ module.exports = class Chain {
 		this.slots = new BlockSlots({
 			epochTime: this.options.constants.EPOCH_TIME,
 			interval: this.options.constants.BLOCK_TIME,
-			blocksPerRound: this.options.constants.ACTIVE_DELEGATES,
+			blocksPerRound: ACTIVE_DELEGATES,
 		});
 		this.scope.slots = this.slots;
 		this.rounds = new Rounds({
@@ -320,7 +322,7 @@ module.exports = class Chain {
 			config: {
 				exceptions: this.options.exceptions,
 				constants: {
-					activeDelegates: this.options.constants.ACTIVE_DELEGATES,
+					activeDelegates: ACTIVE_DELEGATES,
 				},
 			},
 		});
@@ -339,7 +341,7 @@ module.exports = class Chain {
 			maxPayloadLength: this.options.constants.MAX_PAYLOAD_LENGTH,
 			maxTransactionsPerBlock: this.options.constants
 				.MAX_TRANSACTIONS_PER_BLOCK,
-			activeDelegates: this.options.constants.ACTIVE_DELEGATES,
+			activeDelegates: ACTIVE_DELEGATES,
 			rewardDistance: this.options.constants.REWARDS.DISTANCE,
 			rewardOffset: this.options.constants.REWARDS.OFFSET,
 			rewardMileStones: this.options.constants.REWARDS.MILESTONES,
@@ -394,7 +396,7 @@ module.exports = class Chain {
 			transactionPoolModule: this.transactionPool,
 			blocksModule: this.blocks,
 			peersModule: this.peers,
-			activeDelegates: this.options.constants.ACTIVE_DELEGATES,
+			activeDelegates: ACTIVE_DELEGATES,
 			maxTransactionsPerBlock: this.options.constants
 				.MAX_TRANSACTIONS_PER_BLOCK,
 			forgingDelegates: this.options.forging.delegates,
@@ -549,7 +551,7 @@ module.exports = class Chain {
 			this.channel.invoke('interchain:updateModuleState', {
 				capitalisk: { broadhash, height }
 			});
-      this.logger.debug(
+	    this.logger.debug(
 				{ broadhash, height },
 				'Updating the capitalisk chain state',
 			);
